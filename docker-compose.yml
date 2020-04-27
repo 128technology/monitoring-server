@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    container_name: elasticsearch
+    restart: 'always'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    network_mode: host
+    volumes:
+      # You will need to create the path and permissions on the local file system where Elasticsearch will store data.
+      # For example...
+      #   mkdir /var/lib/128t-monitoring-es && chown -R 1000:1000 /var/lib/128t-monitoring-es
+      - /var/lib/128t-monitoring-es:/usr/share/elasticsearch/data
+    environment:
+      cluster.name: '128t-metrics'
+      ES_JAVA_OPTS: '-Xms2g -Xmx2g'
+      bootstrap.memory_lock: 'true'
+      network.host: 0.0.0.0
+      http.port: 9200
+      discovery.type: 'single-node'
+      indices.query.bool.max_clause_count: 8192
+      search.max_buckets: 100000
+      action.destructive_requires_name: 'true'
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.5.2
+    container_name: kibana
+    restart: 'always'
+    network_mode: host
+    environment:
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 5601
+      SERVER_MAXPAYLOADBYTES: 4194304
+      ELASTICSEARCH_HOSTS: "http://127.0.0.1:9200"
+      LOGGING_DEST: stdout
+      LOGGING_QUIET: 'false'
+
+  kafka:
+    image: spotify/kafka
+    container_name: kafka
+    restart: 'always'
+    network_mode: host
+    env_file:
+    - kafka.env
+
+  kafka-logstash:
+    image: docker.elastic.co/logstash/logstash:7.5.2
+    container_name: kafka-logstash
+    network_mode: host
+    volumes:
+      - "./kafka-logstash:/usr/share/logstash/pipeline"
