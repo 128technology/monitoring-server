@@ -57,6 +57,8 @@ docker-compose up -d
 ```
 
 ### Configure Monitoring Agent Output ###
+This section contains a snippet of the monitoring agent configuration.  For full details on the monitoring agent configuration, please visit the [128T Documentation Site](https://docs.128technology.com/docs/plugin_monitoring_agent/).  
+
 Any 128T Monitoring Agent that connects to this monitoring server will need a configuration file for the kafka output.  Please put the following contents in `/var/lib/128t-monitoring/outputs/kafka.conf` on these system:
 ```
 [[outputs.kafka]]
@@ -78,7 +80,7 @@ tags:
 sample-interval: 15
 push-interval: 180
 inputs:
-- name: events
+- name: t128_events
 - name: t128_metrics
 - name: t128_top_analytics
 - name: t128_device_state
@@ -86,7 +88,7 @@ inputs:
 outputs:
 - name: kafka
 ```
-To update the monitoring agent configuration for these changes and start/restart the services, run the following command:
+This monitoring server setup will understand data from the following inputs: t128_events, t128_top_analytics, t128_device_state, t128_peer_path, t128_lte_metric, and t128_metrics.  The dashboards expect only the default metric set for the t128_metrics.  To update the monitoring agent configuration for these changes and start/restart the services, run the following command:
 ```
 monitoring-agent-cli configure
 ```
