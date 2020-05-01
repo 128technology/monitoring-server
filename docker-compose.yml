@@ -38,6 +38,7 @@ services:
       ELASTICSEARCH_HOSTS: "http://127.0.0.1:9200"
       LOGGING_DEST: stdout
       LOGGING_QUIET: 'false'
+      KIBANA_DEFAULTAPPID: 'dashboard/756c8150-8a30-11ea-9144-6b2f8df985d5'
 
   kafka:
     image: spotify/kafka
