@@ -43,6 +43,11 @@ curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compo
 chmod +x /usr/local/bin/docker-compose
 ```
 
+Create symbolic link to make docker-compose command executable:
+```
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+```
+
 ### Setup the environment file for the Kafka container ###
 Kafka must be informed of the address the producers will use to connect.  Please create a file called `kafka.env` in the root directory of the repo.  Its contents should resemple:
 ```
@@ -56,8 +61,180 @@ Use docker-compose to build the monitoring server by running the following comma
 docker-compose up -d
 ```
 
-### Configure Monitoring Agent Output ###
+Provide permissions on the local file system where Elasticsearch will store data:
+```
+chown -R 1000:1000 /var/lib/128t-monitoring-es
+```
+
+
+## Configure Monitoring Agent On Session Smart Network ##
 This section contains a snippet of the monitoring agent configuration.  For full details on the monitoring agent configuration, please visit the [128T Documentation Site](https://docs.128technology.com/docs/plugin_monitoring_agent/).  
+
+For deployments running 128T version 5.1.0 or greater on the conductor, install the monitoring agent plugin for configuration management.
+Note : The instructions for installing and managing the plugin can be found [here](https://docs.128technology.com/docs/plugin_intro/#installation-and-management).
+
+### Conductor Configuration ##
+With the plugin installed, the configuration for the monitoring agent can be managed via the conductor. The general workflow for creating the configuration is as follows:
+
+* Configure the inputs
+* Configure the outputs
+* Create an agent config profile
+* Reference the profile on the router
+
+#### Input Configuration ####
+The monitoring agent plugin allows the user to configure a set of inputs to be captured to monitor the routers. The configuration can be found under `config > authority > monitoring > input`
+
+```
+input         arp
+    name  arp
+    type  arp
+exit
+
+input         events
+    name   events
+    type   events
+
+    event
+        admin         true
+        audit         true
+        alarm         true
+        traffic       true
+        provisioning  true
+        system        true
+        track-index   true
+    exit
+exit
+
+input         device-interface
+    name  device-interface
+    type  device-interface
+exit
+
+input         peer-path
+    name  peer-path
+    type  peer-path
+exit
+
+input         metrics
+    name     metrics
+    type     metrics
+
+    metrics
+        use-default-config  true
+    exit
+exit
+
+input         top-sessions
+    name  top-sessions
+    type  top-sessions
+exit
+```
+
+#### Output Configuration ####
+The output configuration provides information about the various data sink for the inputs.
+
+```
+output        kafka
+    name               kafka
+    type               kafka
+    data-format        json
+
+    kafka
+
+        broker             X.X.X.X 9092
+            host  X.X.X.X
+            port  9092
+        exit
+        topic              telegraf
+        compression-codec  none
+    exit
+    additional-config  (text/toml)
+exit
+```
+
+Where `X.X.X.X` is the address of the Kafka broker as configured in the `ADVERTISED_HOST` environment variable above.
+Add `version = "0.10.1.0"` in `additional-config` which is specific to the Kafka output type as follows:
+
+```
+admin@node1.conductor (output[name=kafka])# additional-config
+Enter toml for additional-config (Press CTRL-D to finish):
+version = "0.10.1.0"
+```
+
+#### Agent Configuration ####
+The agent-config can be leveraged to create a monitoring profile by referencing the various inputs and outputs configured in the previous steps. This allows multiple profiles to be created and applies to different routers.
+
+```
+agent-config  my-agent
+    name   my-agent
+
+    tags   router
+        tag     router
+        router
+    exit
+
+    input  arp
+        name  arp
+    exit
+
+    input  events
+        name  events
+    exit
+
+    input  peer-path
+        name  peer-path
+    exit
+
+    input  device-interface
+        name  device-interface
+    exit
+
+    input  metrics
+        name                 metrics
+        include-all-outputs  true
+    exit
+exit
+```
+
+***
+*NOTE*:  By default `include-all-outputs` is enabled for each of the inputs, meaning the input will be sent to all configured outputs. 
+***
+
+### Router Configuration ###
+
+Once all the inputs, outputs and agent-config are provisioned, monitoring needs to be enabled and the profile should be referenced on all individual routers where the monitoring data needs to be collected. The monitoring config elements can be found under `authority > router > system > monitoring` 
+
+```
+config
+
+    authority
+
+        router  router1
+            name    router1
+
+            system
+
+                monitoring
+                    enabled       true
+                    agent-config  my-agent
+                exit
+            exit
+        exit
+    exit
+exit
+```
+
+***
+
+For deployments running 128T version prior to 5.1.0, monitoring agent can be manually installed on each 128T node along with file based configuration as follows:
+
+The agent can be install using the `dnf` utility.
+
+```
+dnf install 128T-monitoring-agent
+```
+
+## File based Configuration ##
 
 Any 128T Monitoring Agent that connects to this monitoring server will need a configuration file for the kafka output.  Please put the following contents in `/var/lib/128t-monitoring/outputs/kafka.conf` on these system:
 ```
