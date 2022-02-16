@@ -71,7 +71,7 @@ chown -R 1000:1000 /var/lib/128t-monitoring-es
 This section contains a snippet of the monitoring agent configuration.  For full details on the monitoring agent configuration, please visit the [128T Documentation Site](https://docs.128technology.com/docs/plugin_monitoring_agent/).  
 
 For deployments running 128T version 5.1.0 or greater on the conductor, install the monitoring agent plugin for configuration management.
-Note : The instructions for installing and managing the plugin can be found [here].(https://docs.128technology.com/docs/plugin_intro/#installation-and-management)
+Note : The instructions for installing and managing the plugin can be found [here](https://docs.128technology.com/docs/plugin_intro/#installation-and-management).
 
 ### Conductor Configuration ##
 With the plugin installed, the configuration for the monitoring agent can be managed via the conductor. The general workflow for creating the configuration is as follows:
