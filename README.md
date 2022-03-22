@@ -21,6 +21,12 @@ Any software or external firewalls should be configured to allow the following t
 
 The following sections should be run as root
 
+### Install git and clone the repo ###
+```
+yum install git
+git clone https://github.com/128technology/monitoring-server.git
+```
+
 ### Install docker and docker compose ###
 We will use docker to rapidly deploy the setup.  Please use the following commands to install docker:
 ```
@@ -49,14 +55,15 @@ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 ```
 
 ### Setup the environment file for the Kafka container ###
-Kafka must be informed of the address the producers will use to connect.  Please create a file called `kafka.env` in the root directory of the repo.  Its contents should resemple:
+Kafka must be informed of the address the producers will use to connect.  Please create a file called `kafka.env` in the root directory(monitoring-server) of the repo.  Its contents should resemple:
 ```
+cd monitoring-server
 ADVERTISED_HOST=X.X.X.X
 ```
 Where `X.X.X.X` is the address that the producers will use to connect to the kafka broker.  If this host sits behind an elastic IP or other NAT, be sure to use the external NAT address and not the host's local IP address.  Most scenarios aside from this should use the host's local IP address.
 
 ### Bring up the monitoring server ###
-Use docker-compose to build the monitoring server by running the following command:
+Use docker-compose to build the monitoring server by running the following command from root directory where the docker-compose file is present:
 ```
 docker-compose up -d
 ```
