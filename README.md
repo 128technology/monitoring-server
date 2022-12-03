@@ -54,8 +54,8 @@ Create symbolic link to make docker-compose command executable:
 sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 ```
 
-### Setup the environment file for the Kafka container ###
-Kafka must be informed of the address the producers will use to connect.  Please define ADVERTISED_HOST in docker-compose.yaml file. Use editor such as vm or vim, in the kafka line, find the environment section. Modify KAFKA_ ADVERTISED_ HOST_ NAME: IP to your external IP address.
+### Setup the environment advertised host IP for the Kafka container ###
+Kafka must be informed of the address the producers will use to connect. Please define ADVERTISED_HOST in docker-compose.yaml file. by using editor such as vi or vim, in the kafka line, find the environment section. Modify KAFKA_ ADVERTISED_ HOST_ NAME: IP to your external IP address.
 ```
 cd monitoring-server
 KAFKA_ ADVERTISED_ HOST_ NAME: IP 
