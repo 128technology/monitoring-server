@@ -54,11 +54,11 @@ Create symbolic link to make docker-compose command executable:
 sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 ```
 
-### Setup the environment file for the Kafka container ###
-Kafka must be informed of the address the producers will use to connect.  Please create a file called `kafka.env` in the root directory(monitoring-server) of the repo.  Its contents should resemple:
+### Setup the environment advertised host IP for the Kafka container ###
+Kafka must be informed of the address the producers will use to connect. Please define ADVERTISED_HOST in docker-compose.yaml file. by using editor such as vi or vim, in the kafka line, find the environment section. Modify KAFKA_ ADVERTISED_ HOST_ NAME: IP to your external IP address.
 ```
 cd monitoring-server
-ADVERTISED_HOST=X.X.X.X
+KAFKA_ ADVERTISED_ HOST_ NAME: IP 
 ```
 Where `X.X.X.X` is the address that the producers will use to connect to the kafka broker.  If this host sits behind an elastic IP or other NAT, be sure to use the external NAT address and not the host's local IP address.  Most scenarios aside from this should use the host's local IP address.
 
